@@ -6,6 +6,7 @@
 #include "RenderWindow.hpp"
 #include "Entity.hpp"
 #include "Math.hpp"
+#include "Utils.hpp"
 
 #define GRASS_SQUARE_SIZE 32
 
@@ -13,7 +14,10 @@ using namespace std;
 
 int main(int argc, char* args[])
 {
+    const float timeStep = 0.01f;
+    
     bool gameRunning;
+    float timeAccumulator, currentTime;
     SDL_Event event;
     SDL_Texture* grassTexture;
     std::vector<Entity> entityCollection;
@@ -26,6 +30,9 @@ int main(int argc, char* args[])
     RenderWindow gameWindow("GAME v0.1", 1280, 720);
     gameRunning = true;
 
+    timeAccumulator = 0.0f;
+    currentTime = utils::hireTimeInSeconds();
+
     grassTexture = gameWindow.loadTexture("res/gfx/ground_grass_1.png");
     entityCollection = {Entity(Vector2f(10, 10), grassTexture)};
     {
@@ -35,18 +42,38 @@ int main(int argc, char* args[])
 
     while(gameRunning)
     {
-        while(SDL_PollEvent(&event))
+        int startTicks = SDL_GetTicks();
+
+        float newTime = utils::hireTimeInSeconds();
+        timeAccumulator += newTime - currentTime;
+        currentTime = newTime;
+
+        while(timeAccumulator >= timeStep)
         {
-            if(event.type == SDL_QUIT)
-                gameRunning = false;
+            while(SDL_PollEvent(&event))
+            {
+                if(event.type == SDL_QUIT)
+                    gameRunning = false;
+            }
+
+            timeAccumulator -= timeStep;
         }
 
+        const float percLeftInTimeAccumulator = timeAccumulator / timeStep;
+
         gameWindow.clear();
+
         for(Entity& e: entityCollection)
         {
             gameWindow.render(e);
         }
+
         gameWindow.display();
+
+        int frameTicks = SDL_GetTicks() - startTicks;
+        float minRefreshRate = 1000 / gameWindow.getRefreshRate();
+        if(frameTicks < minRefreshRate)
+            SDL_Delay(minRefreshRate - frameTicks);
     }
 
     gameWindow.cleanUp();
