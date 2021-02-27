@@ -1,9 +1,13 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <iostream>
+#include <vector>
 
 #include "RenderWindow.hpp"
 #include "Entity.hpp"
+#include "Math.hpp"
+
+#define GRASS_SQUARE_SIZE 32
 
 using namespace std;
 
@@ -12,6 +16,7 @@ int main(int argc, char* args[])
     bool gameRunning;
     SDL_Event event;
     SDL_Texture* grassTexture;
+    std::vector<Entity> entityCollection;
 
     if(SDL_Init(SDL_INIT_VIDEO) > 0)
         cout << "SDL INIT VIDEO FAILED. SDL_ERROR :" << SDL_GetError() << endl;
@@ -22,7 +27,11 @@ int main(int argc, char* args[])
     gameRunning = true;
 
     grassTexture = gameWindow.loadTexture("res/gfx/ground_grass_1.png");
-    Entity platform0(10, 10, grassTexture);
+    entityCollection = {Entity(Vector2f(10, 10), grassTexture)};
+    {
+        Entity newGrassBlock(10+GRASS_SQUARE_SIZE, 10, grassTexture);
+        entityCollection.push_back(newGrassBlock);
+    }
 
     while(gameRunning)
     {
@@ -33,7 +42,10 @@ int main(int argc, char* args[])
         }
 
         gameWindow.clear();
-        gameWindow.render(platform0);
+        for(Entity& e: entityCollection)
+        {
+            gameWindow.render(e);
+        }
         gameWindow.display();
     }
 

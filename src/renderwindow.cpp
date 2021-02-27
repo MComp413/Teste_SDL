@@ -36,8 +36,8 @@ void RenderWindow::render(Entity& p_entity)
     srcRectangle.w = p_entity.getCurrentFrame().w;
     srcRectangle.h = p_entity.getCurrentFrame().h;
 
-    dstRectangle.x = p_entity.get_x();
-    dstRectangle.y = p_entity.get_y();
+    dstRectangle.x = p_entity.getX();
+    dstRectangle.y = p_entity.getY();
     dstRectangle.w = p_entity.getCurrentFrame().w;
     dstRectangle.h = p_entity.getCurrentFrame().h;
 
